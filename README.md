@@ -11,7 +11,10 @@ Section 3: Memory -> `src/libc_virtual_memory_allocation_and_paging_notes`
 
 ## Building Examples
 
-On a machine with gcc and glib6 installed it should be as simple as navigating to the root directory of the repo and running `make`, though for extra reference I'm on Ubuntu 22.04 right now with the apt packages installed for those two.
+On a machine with gcc and glib6 installed it should be as simple as navigating to the root directory of the repo and running `make`, though for extra reference I'm on Ubuntu 22.04 right now with the apt packages installed for those two. 
+
+### NOTE: ctags / compiledb could kill your build
+I use ctags as well as a json database of build dependencies and stuff for links within vim. If you don't, just remove the `post_build` stuff from the makefile and any reference to it or it'll likely make it ***think*** the build failed when in reality it just couldn't find executables it doesn't even need.
 
 Any extra notes are in the code comments, for example running the executable using
 
