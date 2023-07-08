@@ -1,0 +1,7 @@
+--languages=+C
+--recurse=yes
+--exclude="\.git"
+--C-kinds=+depgmstu
+--totals=yes
+--verbose=no
+--sort=yes

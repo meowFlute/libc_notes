@@ -1,0 +1,50 @@
+[
+ {
+  "directory": "/home/scott/libc_notes",
+  "arguments": [
+   "gcc",
+   "-g",
+   "-D_GNU_SOURCE",
+   "-I./src",
+   "-Wall",
+   "-Wextra",
+   "-c",
+   "src/main.c",
+   "-o",
+   "build/main.o"
+  ],
+  "file": "src/main.c"
+ },
+ {
+  "directory": "/home/scott/libc_notes",
+  "arguments": [
+   "gcc",
+   "-g",
+   "-D_GNU_SOURCE",
+   "-I./src",
+   "-Wall",
+   "-Wextra",
+   "-c",
+   "src/libc_error_reporting_notes.c",
+   "-o",
+   "build/libc_error_reporting_notes.o"
+  ],
+  "file": "src/libc_error_reporting_notes.c"
+ },
+ {
+  "directory": "/home/scott/libc_notes",
+  "arguments": [
+   "gcc",
+   "-g",
+   "-D_GNU_SOURCE",
+   "-I./src",
+   "-Wall",
+   "-Wextra",
+   "-c",
+   "src/libc_virtual_memory_allocation_and_paging_notes.c",
+   "-o",
+   "build/libc_virtual_memory_allocation_and_paging_notes.o"
+  ],
+  "file": "src/libc_virtual_memory_allocation_and_paging_notes.c"
+ }
+]
