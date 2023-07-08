@@ -16,6 +16,7 @@ On a machine with gcc and glib6 installed it should be as simple as navigating t
 ### NOTE: ctags / compiledb could kill your build
 I use ctags as well as a json database of build dependencies and stuff for links within vim. If you don't, just remove the `post_build` stuff from the makefile and any reference to it or it'll likely make it ***think*** the build failed when in reality it just couldn't find executables it doesn't even need.
 
+### Additional notes
 Any extra notes are in the code comments, for example running the executable using
 
 ```shell
