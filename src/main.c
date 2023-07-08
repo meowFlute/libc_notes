@@ -2,8 +2,8 @@
 #include <stdlib.h>
 
 /* notes files -- all have an associated .c */
-#include "libc_virtual_memory_allocation_and_paging_notes.h"
-#include "libc_error_reporting_notes.h"
+#include "2_libc_error_reporting_notes.h"
+#include "3_libc_virtual_memory_allocation_and_paging_notes.h"
 
 int main(int argc, char * argv[])
 {
