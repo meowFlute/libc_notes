@@ -6,6 +6,7 @@
 *.ko
 *.obj
 *.elf
+libc_notes
 
 # Linker output
 *.ilk
