@@ -4,6 +4,7 @@
 /* notes files -- all have an associated .c */
 #include "2_error_reporting.h"
 #include "3_virtual_memory_allocation.h"
+#include "4_character_classification.h"
 
 int main(int argc, char * argv[])
 {
