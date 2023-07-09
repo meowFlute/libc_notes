@@ -25,11 +25,11 @@
    "-Wall",
    "-Wextra",
    "-c",
-   "src/2_libc_error_reporting_notes.c",
+   "src/2_error_reporting.c",
    "-o",
-   "build/2_libc_error_reporting_notes.o"
+   "build/2_error_reporting.o"
   ],
-  "file": "src/2_libc_error_reporting_notes.c"
+  "file": "src/2_error_reporting.c"
  },
  {
   "directory": "/home/scott/libc_notes",
@@ -41,10 +41,10 @@
    "-Wall",
    "-Wextra",
    "-c",
-   "src/3_libc_virtual_memory_allocation_and_paging_notes.c",
+   "src/3_virtual_memory_allocation.c",
    "-o",
-   "build/3_libc_virtual_memory_allocation_and_paging_notes.o"
+   "build/3_virtual_memory_allocation.o"
   ],
-  "file": "src/3_libc_virtual_memory_allocation_and_paging_notes.c"
+  "file": "src/3_virtual_memory_allocation.c"
  }
 ]

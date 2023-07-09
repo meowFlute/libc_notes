@@ -7,32 +7,32 @@
 BUILD_DIR	Makefile	/^BUILD_DIR=.\/build$/;"	m
 CC	Makefile	/^CC=gcc$/;"	m
 CFLAGS	Makefile	/^CFLAGS := -g -D_GNU_SOURCE $(INC_FLAGS) -Wall -Wextra$/;"	m
+ERROR_REPORTING_H	src/2_error_reporting.h	2;"	d
 INC_DIRS	Makefile	/^INC_DIRS := $(SRC_DIR)$/;"	m
 INC_FLAGS	Makefile	/^INC_FLAGS := $(addprefix -I,$(INC_DIRS))$/;"	m
-LIBC_ERROR_REPORTING_NOTES_H	src/2_libc_error_reporting_notes.h	2;"	d
-LIBC_VIRTUAL_MEMORY_ALLOCATION_AND_PAGING_NOTES_H	src/3_libc_virtual_memory_allocation_and_paging_notes.h	2;"	d
 OBJS	Makefile	/^OBJS := $(patsubst $(SRC_DIR)\/%.c,$(BUILD_DIR)\/%.o,$(SRCS))$/;"	m
 SRCS	Makefile	/^SRCS := $(wildcard $(SRC_DIR)\/*.c)$/;"	m
 SRC_DIR	Makefile	/^SRC_DIR=.\/src$/;"	m
 TARGET_EXEC	Makefile	/^TARGET_EXEC=libc_notes$/;"	m
-_llnode	src/3_libc_virtual_memory_allocation_and_paging_notes.c	/^typedef struct _llnode {$/;"	s	file:
-change_node_string	src/3_libc_virtual_memory_allocation_and_paging_notes.c	/^int change_node_string(llnode * node, char * string_data)$/;"	f
-error_reporting_example	src/2_libc_error_reporting_notes.c	/^void error_reporting_example(void)$/;"	f
-error_reporting_example	src/2_libc_error_reporting_notes.h	/^void error_reporting_example(void);$/;"	p
-free_entire_list	src/3_libc_virtual_memory_allocation_and_paging_notes.c	/^static void free_entire_list(llnode * head_node)$/;"	f	file:
-free_node	src/3_libc_virtual_memory_allocation_and_paging_notes.c	/^static void free_node(llnode * node_to_free)$/;"	f	file:
-get_memory_subsystem_info	src/3_libc_virtual_memory_allocation_and_paging_notes.c	/^void get_memory_subsystem_info(void)$/;"	f
-get_memory_subsystem_info	src/3_libc_virtual_memory_allocation_and_paging_notes.h	/^void get_memory_subsystem_info(void);$/;"	p
-llnode	src/3_libc_virtual_memory_allocation_and_paging_notes.c	/^} llnode;$/;"	t	typeref:struct:_llnode	file:
+VIRTUAL_MEMORY_ALLOCATION_H	src/3_virtual_memory_allocation.h	2;"	d
+_llnode	src/3_virtual_memory_allocation.c	/^typedef struct _llnode {$/;"	s	file:
+change_node_string	src/3_virtual_memory_allocation.c	/^int change_node_string(llnode * node, char * string_data)$/;"	f
+error_reporting_demo	src/2_error_reporting.c	/^void error_reporting_demo(void)$/;"	f
+error_reporting_demo	src/2_error_reporting.h	/^void error_reporting_demo(void);$/;"	p
+free_entire_list	src/3_virtual_memory_allocation.c	/^static void free_entire_list(llnode * head_node)$/;"	f	file:
+free_node	src/3_virtual_memory_allocation.c	/^static void free_node(llnode * node_to_free)$/;"	f	file:
+get_memory_subsystem_info	src/3_virtual_memory_allocation.c	/^void get_memory_subsystem_info(void)$/;"	f
+get_memory_subsystem_info	src/3_virtual_memory_allocation.h	/^void get_memory_subsystem_info(void);$/;"	p
+llnode	src/3_virtual_memory_allocation.c	/^} llnode;$/;"	t	typeref:struct:_llnode	file:
 main	src/main.c	/^int main(int argc, char * argv[])$/;"	f
 main	test.c	/^int main()$/;"	f
-new_llnode	src/3_libc_virtual_memory_allocation_and_paging_notes.c	/^static llnode * new_llnode(int numeric_data, char * string_data)$/;"	f	file:
-next	src/3_libc_virtual_memory_allocation_and_paging_notes.c	/^    struct _llnode * next;$/;"	m	struct:_llnode	typeref:struct:_llnode::_llnode	file:
-numeric_data	src/3_libc_virtual_memory_allocation_and_paging_notes.c	/^    int numeric_data;$/;"	m	struct:_llnode	file:
-paging_example	src/3_libc_virtual_memory_allocation_and_paging_notes.c	/^void paging_example(void)$/;"	f
-paging_example	src/3_libc_virtual_memory_allocation_and_paging_notes.h	/^void paging_example(void);$/;"	p
-print_entire_list	src/3_libc_virtual_memory_allocation_and_paging_notes.c	/^static void print_entire_list(llnode * head_node)$/;"	f	file:
-print_memory_statistics	src/3_libc_virtual_memory_allocation_and_paging_notes.c	/^void print_memory_statistics(struct mallinfo2 malloc_info)$/;"	f
-string_data	src/3_libc_virtual_memory_allocation_and_paging_notes.c	/^    char * string_data;$/;"	m	struct:_llnode	file:
-virtual_memory_allocation_example	src/3_libc_virtual_memory_allocation_and_paging_notes.c	/^void virtual_memory_allocation_example(void)$/;"	f
-virtual_memory_allocation_example	src/3_libc_virtual_memory_allocation_and_paging_notes.h	/^void virtual_memory_allocation_example(void);$/;"	p
+new_llnode	src/3_virtual_memory_allocation.c	/^static llnode * new_llnode(int numeric_data, char * string_data)$/;"	f	file:
+next	src/3_virtual_memory_allocation.c	/^    struct _llnode * next;$/;"	m	struct:_llnode	typeref:struct:_llnode::_llnode	file:
+numeric_data	src/3_virtual_memory_allocation.c	/^    int numeric_data;$/;"	m	struct:_llnode	file:
+paging_demo	src/3_virtual_memory_allocation.c	/^void paging_demo(void)$/;"	f
+paging_demo	src/3_virtual_memory_allocation.h	/^void paging_demo(void);$/;"	p
+print_entire_list	src/3_virtual_memory_allocation.c	/^static void print_entire_list(llnode * head_node)$/;"	f	file:
+print_memory_statistics	src/3_virtual_memory_allocation.c	/^void print_memory_statistics(struct mallinfo2 malloc_info)$/;"	f
+string_data	src/3_virtual_memory_allocation.c	/^    char * string_data;$/;"	m	struct:_llnode	file:
+virtual_memory_allocation_demo	src/3_virtual_memory_allocation.c	/^void virtual_memory_allocation_demo(void)$/;"	f
+virtual_memory_allocation_demo	src/3_virtual_memory_allocation.h	/^void virtual_memory_allocation_demo(void);$/;"	p
