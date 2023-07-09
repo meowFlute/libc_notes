@@ -46,5 +46,21 @@
    "build/3_libc_virtual_memory_allocation_and_paging_notes.o"
   ],
   "file": "src/3_libc_virtual_memory_allocation_and_paging_notes.c"
+ },
+ {
+  "directory": "/home/scott/libc_notes",
+  "arguments": [
+   "gcc",
+   "-g",
+   "-D_GNU_SOURCE",
+   "-I./src",
+   "-Wall",
+   "-Wextra",
+   "-c",
+   "src/4_character_classification.c",
+   "-o",
+   "build/4_character_classification.o"
+  ],
+  "file": "src/4_character_classification.c"
  }
 ]

@@ -7,6 +7,7 @@
 BUILD_DIR	Makefile	/^BUILD_DIR=.\/build$/;"	m
 CC	Makefile	/^CC=gcc$/;"	m
 CFLAGS	Makefile	/^CFLAGS := -g -D_GNU_SOURCE $(INC_FLAGS) -Wall -Wextra$/;"	m
+CHARACTER_CLASSIFICATION_H	src/4_character_classification.h	2;"	d
 INC_DIRS	Makefile	/^INC_DIRS := $(SRC_DIR)$/;"	m
 INC_FLAGS	Makefile	/^INC_FLAGS := $(addprefix -I,$(INC_DIRS))$/;"	m
 LIBC_ERROR_REPORTING_NOTES_H	src/2_libc_error_reporting_notes.h	2;"	d
@@ -17,6 +18,10 @@ SRC_DIR	Makefile	/^SRC_DIR=.\/src$/;"	m
 TARGET_EXEC	Makefile	/^TARGET_EXEC=libc_notes$/;"	m
 _llnode	src/3_libc_virtual_memory_allocation_and_paging_notes.c	/^typedef struct _llnode {$/;"	s	file:
 change_node_string	src/3_libc_virtual_memory_allocation_and_paging_notes.c	/^int change_node_string(llnode * node, char * string_data)$/;"	f
+char_case_conversion_demo	src/4_character_classification.c	/^void char_case_conversion_demo(void)$/;"	f
+char_case_conversion_demo	src/4_character_classification.h	/^void char_case_conversion_demo(void);$/;"	p
+char_classification_demo	src/4_character_classification.c	/^void char_classification_demo(void)$/;"	f
+char_classification_demo	src/4_character_classification.h	/^void char_classification_demo(void);$/;"	p
 error_reporting_example	src/2_libc_error_reporting_notes.c	/^void error_reporting_example(void)$/;"	f
 error_reporting_example	src/2_libc_error_reporting_notes.h	/^void error_reporting_example(void);$/;"	p
 free_entire_list	src/3_libc_virtual_memory_allocation_and_paging_notes.c	/^static void free_entire_list(llnode * head_node)$/;"	f	file:
@@ -36,3 +41,9 @@ print_memory_statistics	src/3_libc_virtual_memory_allocation_and_paging_notes.c	
 string_data	src/3_libc_virtual_memory_allocation_and_paging_notes.c	/^    char * string_data;$/;"	m	struct:_llnode	file:
 virtual_memory_allocation_example	src/3_libc_virtual_memory_allocation_and_paging_notes.c	/^void virtual_memory_allocation_example(void)$/;"	f
 virtual_memory_allocation_example	src/3_libc_virtual_memory_allocation_and_paging_notes.h	/^void virtual_memory_allocation_example(void);$/;"	p
+wchar_classification_demo	src/4_character_classification.c	/^void wchar_classification_demo(void)$/;"	f
+wchar_classification_demo	src/4_character_classification.h	/^void wchar_classification_demo(void);$/;"	p
+wchar_mapping_demo	src/4_character_classification.c	/^void wchar_mapping_demo(void)$/;"	f
+wchar_mapping_demo	src/4_character_classification.h	/^void wchar_mapping_demo(void);$/;"	p
+wchar_usage_demo	src/4_character_classification.c	/^void wchar_usage_demo(void)$/;"	f
+wchar_usage_demo	src/4_character_classification.h	/^void wchar_usage_demo(void);$/;"	p
