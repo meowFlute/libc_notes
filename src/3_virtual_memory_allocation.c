@@ -49,7 +49,7 @@
  *        Statistics of Malloc::.
  * */
 
-#include "3_libc_virtual_memory_allocation_and_paging_notes.h"
+#include "3_virtual_memory_allocation.h"
 #include <stdio.h>  /* printf */
 #include <stdlib.h> /* malloc, calloc, free */
 #include <malloc.h> /* mallopt, mallinfo2, malloc tunable parameters */
@@ -213,7 +213,7 @@ void print_memory_statistics(struct mallinfo2 malloc_info)
     return;
 }
 
-void virtual_memory_allocation_example(void)
+void virtual_memory_allocation_demo(void)
 {
     /* auto is a form of memory management that blows this away when it leaves 
      * scope, but it also happens automatically so it is pointless */
@@ -345,7 +345,7 @@ void get_memory_subsystem_info(void)
     return;
 }
 
-void paging_example(void)
+void paging_demo(void)
 {
     /* this is kind of a cop-out but I decided that I'm not going to pursue the
      * other memory concepts for now for the reason that I can't even think of

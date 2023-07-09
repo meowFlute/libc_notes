@@ -2,9 +2,8 @@
 #include <stdlib.h>
 
 /* notes files -- all have an associated .c */
-#include "2_libc_error_reporting_notes.h"
-#include "3_libc_virtual_memory_allocation_and_paging_notes.h"
-#include "4_character_classification.h"
+#include "2_error_reporting.h"
+#include "3_virtual_memory_allocation.h"
 
 int main(int argc, char * argv[])
 {
@@ -17,10 +16,10 @@ int main(int argc, char * argv[])
         exit(EXIT_FAILURE);
     }
    
-    /* Chapter 3 -- memory management examples */
+    /* memory management demo */
     get_memory_subsystem_info();
-    virtual_memory_allocation_example();
-    paging_example();
+    virtual_memory_allocation_demo();
+    paging_demo();
 
     /* Chapter 4 -- Character Classification Examples */
     char_classification_demo();
@@ -28,9 +27,9 @@ int main(int argc, char * argv[])
 
     /* Chapter 2 -- error reporting should be run last because it will exit with
      * return value of EXIT_FAILURE before we reach the exit below */
-    printf("Starting error reporting example:\n");
-    error_reporting_example();
+    printf("Starting error reporting demo:\n");
+    error_reporting_demo();
     /* we won't reach anything below this point, that's part of the demo */
-    printf("Error reporting example complete.\n\n");
+    printf("Error reporting demo complete.\n\n");
     exit(EXIT_SUCCESS);
 }

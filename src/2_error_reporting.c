@@ -1,4 +1,4 @@
-#include "2_libc_error_reporting_notes.h"
+#include "2_error_reporting.h"
 
 /* in this example we intend to demonstrate the error reporting provided by
  * libc. You can divide that into the following groups:
@@ -35,7 +35,7 @@
 #include <error.h>      /* error */
 #include <stdlib.h>     /* EXIT_FAILURE */
 
-void error_reporting_example(void)
+void error_reporting_demo(void)
 {
     /* to generate an error, I'll pass fopen a bad flag */
     error_message_count = 0;
