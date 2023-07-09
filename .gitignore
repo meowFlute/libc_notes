@@ -7,6 +7,8 @@
 *.obj
 *.elf
 libc_notes
+tags
+compile_commands.json
 
 # Linker output
 *.ilk
