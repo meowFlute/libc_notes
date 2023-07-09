@@ -184,19 +184,19 @@ void char_classification_demo(void)
 
     /* seems safe in my locale */
     printf("undefined behavior counters in my locale:\n");
-    printf("islowercntr = %d\n", islowercntr); 
-    printf("isuppercntr = %d\n", isuppercntr); 
-    printf("isalphacntr = %d\n", isalphacntr); 
-    printf("isdigitcntr = %d\n", isdigitcntr); 
-    printf("isalnumcntr = %d\n", isalnumcntr); 
-    printf("isxdigitcntr = %d\n", isxdigitcntr);
-    printf("ispunctcntr = %d\n", ispunctcntr); 
-    printf("isspacecntr = %d\n", isspacecntr); 
-    printf("isblankcntr = %d\n", isblankcntr); 
-    printf("isgraphcntr = %d\n", isgraphcntr); 
-    printf("isprintcntr = %d\n", isprintcntr); 
-    printf("iscntrlcntr = %d\n", iscntrlcntr); 
-    printf("isasciicntr = %d\n", isasciicntr); 
+    printf("\tislowercntr = %d\n", islowercntr); 
+    printf("\tisuppercntr = %d\n", isuppercntr); 
+    printf("\tisalphacntr = %d\n", isalphacntr); 
+    printf("\tisdigitcntr = %d\n", isdigitcntr); 
+    printf("\tisalnumcntr = %d\n", isalnumcntr); 
+    printf("\tisxdigitcntr = %d\n", isxdigitcntr);
+    printf("\tispunctcntr = %d\n", ispunctcntr); 
+    printf("\tisspacecntr = %d\n", isspacecntr); 
+    printf("\tisblankcntr = %d\n", isblankcntr); 
+    printf("\tisgraphcntr = %d\n", isgraphcntr); 
+    printf("\tisprintcntr = %d\n", isprintcntr); 
+    printf("\tiscntrlcntr = %d\n", iscntrlcntr); 
+    printf("\tisasciicntr = %d\n", isasciicntr); 
 
     return;
 }
