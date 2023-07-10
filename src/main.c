@@ -25,6 +25,9 @@ int main(int argc, char * argv[])
     /* Chapter 4 -- Character Classification Examples */
     char_classification_demo();
     char_case_conversion_demo();
+    wchar_classification_demo();
+    wchar_usage_demo();
+    wchar_mapping_demo();
 
     /* Chapter 2 -- error reporting should be run last because it will exit with
      * return value of EXIT_FAILURE before we reach the exit below */

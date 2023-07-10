@@ -16,7 +16,12 @@
 #include "4_character_classification.h"
 #include <stdio.h>
 #include <ctype.h>
+#include <wctype.h>
+#include <wchar.h>
+#include <stddef.h>
 #include <string.h>
+#include <locale.h>
+#include <stdbool.h>
 
 /* Section 4.1 -- Classification of Characters
  * All of the functions in this demo are from ctype.h, and they take an int
@@ -237,17 +242,106 @@ void char_case_conversion_demo(void)
     return;
 }
 
-/* demos for wide characters */
+/* different locales have different classifications defined for them, but the
+ * definitions guaranteed to exist in every local are:
+ * 
+ *   ‘"alnum"’          ‘"alpha"’          ‘"cntrl"’          ‘"digit"’
+ *   ‘"graph"’          ‘"lower"’          ‘"print"’          ‘"punct"’
+ *   ‘"space"’          ‘"upper"’          ‘"xdigit"’
+ * 
+ * you can access these tests either by using commonly-used predefined
+ * functions which have a form like 
+ *      int iswalnum(wint_t WC) 
+ * 
+ * you can also access them by a new flow that is:
+ *  -> wctype_t wctype (const char *PROPERTY)
+ *  -> int iswctype(wint_t WC, wctype_t DESC)
+ * which would look something like this when casting a single-byte char c:
+ *      int is_in_class (int c, const char *class)
+ *      {
+ *          wctype_t desc = wctype (class);
+ *          return desc ? iswctype (btowc (c), desc) : 0;
+ *      }
+ */
 void wchar_classification_demo(void)
 {
+    /* I don't know why yet but I need to set the locale before I can use wide
+     * chars */
+    setlocale(LC_ALL, "C.UTF-8");
+
+    wchar_t * wide_chars = L"Here ÃrE sõmé chAracters";
+    wchar_t upper[30];
+    wchar_t lower[30];
+    size_t ucntr = 0;
+    size_t lcntr = 0;
+
+    /* size_t wcslen(const wchar_t * WS) is the equivalent of strlen */
+    for(size_t i = 0; i < wcslen(wide_chars); i++)
+    {
+        /* show how to do it using iswctype */
+        if(iswctype(wide_chars[i], wctype("upper")))
+            upper[ucntr++] = wide_chars[i];
+
+        /* show how to do it using the iswlower function */
+        if(iswlower(wide_chars[i]))
+            lower[lcntr++] = wide_chars[i];
+    }
+    upper[ucntr] = L'\0';
+    lower[lcntr] = L'\0';
+
+    printf("Original String: %ls\n\tUpper: %ls\n\tLower: %ls\n",
+            wide_chars,
+            upper,
+            lower);
+
     return;
 }
+
+/* This demo is just that you can't simply cast a char to wchar_t, use btowc
+ * instead (see also chapter 6) */
 void wchar_usage_demo(void)
 {
+    /* as a contrived example I'll use a wide char comparison on a string made
+     * of chars */
+    char * some_chars = "aeiou234";
+    wctype_t desc = wctype("digit");
+    
+    printf("digits in wide string %s : ", some_chars);
+    for(unsigned long i = 0; i < strlen(some_chars); i++)
+    {
+        /* check the wide char type by converting the char to a wide char, also
+         * test whether desc is 0 and return false (0) if it is */
+        if(desc ? iswctype (btowc(some_chars[i]), desc) : false)
+            printf("%c", some_chars[i]);
+    }
+    printf("\n");
+
     return;
 }
+
+/* here we show the two methods you can use to map with wide characters */
 void wchar_mapping_demo(void)
 {
+    setlocale(LC_ALL, "C.UTF-8");
+    wchar_t * wide_chars = L"Here ÃrE sõmé chAracters";
+    printf("wchar mapping demo string: %ls\n", wide_chars);
+
+    printf("Converting to upper: ");
+    for(size_t i = 0; i < wcslen(wide_chars); i++)
+    {
+        /* demo of how to do it for any class conversion */
+        printf("%lc", towctrans(wide_chars[i], wctrans("toupper")));
+    }
+    printf("\n");
+
+    printf("Converting to lower: ");
+    for(size_t i = 0; i < wcslen(wide_chars); i++)
+    {
+        /* demo of how to do it using built ins */
+        printf("%lc", towlower(wide_chars[i]));
+    }
+    printf("\n");
+
     return;
 }
 
