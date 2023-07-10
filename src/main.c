@@ -2,9 +2,9 @@
 #include <stdlib.h>
 
 /* notes files -- all have an associated .c */
-#include "2_error_reporting.h"
-#include "3_virtual_memory_allocation.h"
-#include "4_character_classification.h"
+#include "02_error_reporting.h"
+#include "03_virtual_memory_allocation.h"
+#include "04_character_classification.h"
 
 int main(int argc, char * argv[])
 {

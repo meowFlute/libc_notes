@@ -1,4 +1,4 @@
-#include "2_error_reporting.h"
+#include "02_error_reporting.h"
 
 /* in this example we intend to demonstrate the error reporting provided by
  * libc. You can divide that into the following groups:
