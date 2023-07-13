@@ -7,6 +7,7 @@
 #include "02_error_reporting.h"
 #include "03_virtual_memory_allocation.h"
 #include "04_character_classification.h"
+#include "05_string_utils.h"
 #include "25_program_arguments.h"
 
 int main(int argc, char * argv[])
@@ -31,6 +32,12 @@ int main(int argc, char * argv[])
         wchar_classification_demo();
         wchar_usage_demo();
         wchar_mapping_demo();
+    }
+
+    /* Section 5 -- String & Array Demos */
+    if(sections[5])
+    {
+        string_run_demos();
     }
 
     /* Section 2 -- error reporting should be run last because it will exit with
