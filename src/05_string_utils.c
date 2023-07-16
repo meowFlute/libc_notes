@@ -441,7 +441,7 @@ int compare_elements (const void * s1, const void * s2)
 void string_collate_demo(void)
 {
     printf( "===================\n"
-            "=== Section 5.7 ===\n"
+            "=== Section 5.8 ===\n"
             "===================\n\n");
 
     /* strcoll compares two strings, strxfrm transforms a string */
