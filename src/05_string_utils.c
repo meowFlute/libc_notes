@@ -43,6 +43,15 @@
 #include "stdio.h"  /* printf */
 #include "string.h" /* most other functions used here for char strings */
 #include "wchar.h"  /* wcslen, etc */
+#include "stdlib.h" /* malloc */
+#include "errno.h"  /* errno for malloc checking */
+#include "error.h"  /* error for errno reporting */
+#include "locale.h" /* LC_ALL, etc */
+
+/* we'll use this dummy buffer length a few times */
+#ifndef MAX_BUFF_LEN
+#define MAX_BUFF_LEN 4
+#endif
 
 /* run all of the subsections in order */
 void string_run_demos(void)
@@ -62,9 +71,15 @@ void string_run_demos(void)
     string_argz_envz_demo();
 }
 
-/* Section 5.3 Notes */
+/* Section 5.3 Notes 
+ * The main thing to remember here is to not accidentally set it up to where
+ * you try to read the length of something with no null terminator */
 void string_length_demo(void)
 {
+    printf( "===================\n"
+            "=== Section 5.3 ===\n"
+            "===================\n\n");
+
     char demo_buffer[80] = { 0 };
     char * demo_string = "hello, world!";
    
@@ -104,7 +119,6 @@ void string_length_demo(void)
 
     /* to try to mitigate the nastiness of multibyte strings you can protect
      * using strnlen which specified a maximum length to avoid overflow */
-#define MAX_BUFF_LEN 4
     /* oh no, we forgot the null terminator '\0' !!! */
     char overflowed_buffer[MAX_BUFF_LEN] = { 'a', 'b', 'c', 'd' };
     printf( "This is how you protect from an overrun when the buffer doesn't "
@@ -119,36 +133,367 @@ void string_length_demo(void)
             strlen(overflowed_buffer));
 
     /* the same exists as a gnu extension for wide chars as wcsnlen */
+    printf("\n"); // end of section
+    return;
 }
 
-/* Section 5.4 Notes */
+/* something we'll use for more complex copying */
+typedef struct _data {
+    int int_data;
+    char char_buff[MAX_BUFF_LEN];
+    double double_data;
+} data;
+
+typedef struct _two_datas {
+    data first_data;
+    data second_data;
+} two_datas;
+
+/* Section 5.4 Notes
+ * Number 1 takeaway: do not, under any circumstances, allow the source and
+ * destination arrays to overlap */
 void string_copying_demo(void)
 {
+    printf( "===================\n"
+            "=== Section 5.4 ===\n"
+            "===================\n\n");
 
+    /* mem and str functions are in string.h */
+    /* mem functions can be applied to much more than just strings */
+    data from_data = { 12345, "678", 9.0 };
+    data to_data = { 0 };
+
+    printf( "to_data fields prior to memcpy:\n"
+            "\t.int_data = %d\n"
+            "\t.char_buff = %s\n"
+            "\t.double_data = %lf\n",
+            to_data.int_data,
+            to_data.char_buff,
+            to_data.double_data);
+    
+    /* technically returns a void * to the location of to_data */
+    memcpy(&to_data, &from_data, sizeof(data));
+    printf( "to_data fields prior to memcpy:\n"
+            "\t.int_data = %d\n"
+            "\t.char_buff = %s\n"
+            "\t.double_data = %lf\n",
+            to_data.int_data,
+            to_data.char_buff,
+            to_data.double_data);
+
+    /* mempcpy returns a void * to the location just AFTER to, so something
+     * like this where you write consecutively is suddenly possible */
+    /* change to_data to something different than from_data */
+    memcpy(to_data.char_buff, "123", MAX_BUFF_LEN);
+    to_data.int_data = 321;
+    to_data.double_data = 0.10987654321;
+    /* allocate two struct _data's worth of memory */
+    two_datas * both_data = malloc(2 * sizeof(data));
+    if(both_data == NULL)
+        error(EXIT_FAILURE, errno, "both_data allocation failed");
+    /* copy them both into that new region with to_data in front */
+    memcpy( mempcpy(both_data, &to_data, sizeof(data)), &from_data, sizeof(data));
+    /* read both data structs */ 
+    printf( "Reading two data structs written sequentially using mempcpy:\n"
+            "\tboth_datas->first_data.int_data = %d\n"
+            "\tboth_datas->first_data.char_buff = %s\n"
+            "\tboth_datas->first_data.double_data = %lf\n"
+            "\tboth_datas->second_data.int_data = %d\n"
+            "\tboth_datas->second_data.char_buff = %s\n"
+            "\tboth_datas->second_data.double_data = %lf\n",
+            both_data->first_data.int_data,
+            both_data->first_data.char_buff,
+            both_data->first_data.double_data,
+            both_data->second_data.int_data,
+            both_data->second_data.char_buff,
+            both_data->second_data.double_data);
+
+    /* should you need to overlap for some reason, there is a function for that
+     * called memmove */
+    char buff[80] = "123456789 123456789 123456789";
+    printf( "demo string we'll do an overlapped copy on:\n"
+            "\t\"%s\"\n", buff);
+    /* force it into an overlap scenario that still won't overflow the buffer
+     * */
+    int new_start = strlen(buff) - 15;
+    printf( "copy target location: '%c' pos = %d\n",
+            buff[new_start],
+            new_start);
+    /* perform the memmove */
+    char * new_string = memmove(buff + new_start, buff, strlen(buff));
+    printf( "new string value after blowing away the original null terminator "
+            " with an overlapping copy:\n"
+            "\t\"%s\"\n"
+            "\tstrlen = %zu\n"
+            "\tnew_string = \"%s\"\n",
+            buff,
+            strlen(buff),
+            new_string);
+    
+    /* you can set a block of memory to an unsigned char value with memset */
+    memset(both_data, 0, 2 * sizeof(data));
+    printf( "Reading two data structs written to all zeros using memset:\n"
+            "\tboth_datas->first_data.int_data = %d\n"
+            "\tboth_datas->first_data.char_buff = %s\n"
+            "\tboth_datas->first_data.double_data = %lf\n"
+            "\tboth_datas->second_data.int_data = %d\n"
+            "\tboth_datas->second_data.char_buff = %s\n"
+            "\tboth_datas->second_data.double_data = %lf\n",
+            both_data->first_data.int_data,
+            both_data->first_data.char_buff,
+            both_data->first_data.double_data,
+            both_data->second_data.int_data,
+            both_data->second_data.char_buff,
+            both_data->second_data.double_data);
+
+    /* strcpy we know, uses null terminator so I won't demo it */
+    
+    /* strdup uses malloc to allocate a new string in */
+    /* strdupa is the same but uses alloca and requires GNU CC */
+    char * heap_string = strdup("This goes on the heap!");
+    if(heap_string == NULL)
+        error(EXIT_FAILURE, errno, "heap_string allocation failed");
+    printf( "String dynamically allocated using strdup:\n"
+            "\t\"%s\"\n",
+            heap_string);
+
+    /* stpcpy is like strcpy but gives us the value of the null terminator */
+    char concat_buffer[20] = { 0 };
+    char *concat_ptr = concat_buffer;
+    concat_ptr = stpcpy(concat_ptr, "12345");
+    concat_ptr = stpcpy(concat_ptr, "67890");
+    printf( "concatenated string using stpcpy:\n"
+            "\t\"%s\"\n",
+            concat_buffer);
+
+    /* bcopy is more or less memmove but obsolete, and bzero is basically
+     * memset but obsolete */
+
+    /* don't forget to free your mallocs :) */
+    free(heap_string);
+    free(both_data);
+    printf("\n");
 }
 
-/* Section 5.5 Notes */
+/* Section 5.5 Notes 
+ *
+ * This section is very opinionated about the use of strcat! For example:
+ *      "Programmers using the ‘strcat’ or ‘wcscat’ function (or the ‘strncat’
+ *      or ‘wcsncat’ functions defined in a later section, for that matter) can
+ *      easily be recognized as lazy and reckless."
+ * 
+ * Strong words!!!
+ * 
+ * Further it says:
+ *      "Whenever a programmer feels the need to use ‘strcat’ she or he should
+ *      think twice and look through the program to see whether the code cannot
+ *      be rewritten to take advantage of already calculated results.  Again: it
+ *      is almost always unnecessary to use ‘strcat’" 
+ *
+ * so we'll do a simple demo of both ways, memcpy (or mempcpy) and strcat here.
+ * */
 void string_concat_demo(void)
 {
+    printf( "===================\n"
+            "=== Section 5.5 ===\n"
+            "===================\n\n");
 
+    /* two arbitrary strings */
+    char * first_string = "Hello";
+    char * second_string = ", world!";
+
+    /* to put them somewhere we need to guarantee we have enough memory */
+    size_t first_len = strlen(first_string);
+    size_t second_len = strlen(second_string);
+    size_t block_length = first_len + second_len + 1;
+    char * dest_memcpy = malloc(block_length);
+    if(dest_memcpy == NULL)
+        error(EXIT_FAILURE, errno, "dest_memcpy allocation error");
+    char * dest_strcat = malloc(block_length);
+    if(dest_strcat == NULL)
+        error(EXIT_FAILURE, errno, "dest_strcat allocation error");
+
+    /* strcat method of adding them in */
+    strcpy(dest_strcat, first_string);
+    strcat(dest_strcat, second_string); // this function has to find the end of
+                                        // the first string manually so it can 
+                                        // concat
+
+    /* memcpy method of adding them in */
+    /* note how because we already found the lengths to make the buffer, we
+     * didn't need to make strcat find the lengths again */
+    memcpy( mempcpy(dest_memcpy, first_string, first_len), 
+            second_string, 
+            second_len);
+    dest_strcat[first_len+second_len] = '\0';
+
+    /* output to verify string contents and concat success */
+    printf( "strcat vs. memcpy strings:\n"
+            "\tstrcat: \"%s\"\n"
+            "\tmemcpy: \"%s\"\n",
+            dest_strcat,
+            dest_memcpy);
+
+    /* free dynamically allocated memory */
+    free(dest_strcat);
+    free(dest_memcpy);
+
+    /* so ya, if you go through all the trouble of dynamically allocating
+     * memory in the right way to verify that the buffer can always hold the
+     * string then you already did all the work to just do a memcpy. I guess
+     * that probably also goes for most of the strcpy functions as well */
+    printf("\n");
 }
 
-/* Section 5.6 Notes */
+/* Section 5.6 Notes 
+ * Truncation is just as spicy as concatenation, and for good reason:
+ *      "Because these functions can abruptly truncate strings or wide
+ *      strings, they are generally poor choices for processing text.  When
+ *      coping or concatening multibyte strings, they can truncate within a
+ *      multibyte character so that the result is not a valid multibyte string.
+ *      When combining or concatenating multibyte or wide strings, they may
+ *      truncate the output after a combining character, resulting in a
+ *      corrupted grapheme.  They can cause bugs even when processing
+ *      single-byte strings: for example, when calculating an ASCII-only user
+ *      name, a truncated name can identify the wrong user."
+ *
+ * The manual suggests using instead -fcheck-pointer-bounds and
+ * -fsanitize=address options with gcc to debug instead of truncating strings.
+ *
+ * This makes sense, because you'll just roll yourself into new bugs since
+ * strncpy doesn't do null termination and things like strndup which do add a
+ * null terminator can stull truncate a unicode character into something
+ * nonsensical.
+ *
+ * GNU Coding Standards suggest just using dynamic memory allocation carefully
+ * and never truncating for buffer length.
+ * */
 void string_truncate_demo(void)
 {
-
+    /* not demo'd because I don't plan on using them */
+    /* These include functions like strncpy or strndup/strndupa */
 }
 
 /* Section 5.7 Notes */
 void string_compare_demo(void)
 {
+    printf( "===================\n"
+            "=== Section 5.7 ===\n"
+            "===================\n\n");
 
+    /* memcmp is really only useful for something where you want to compare
+     * exact blocks, as it takes each byte as an unsigned char and promotes it
+     * to int to do the comparison. You might be tempted to use it to compare
+     * something like a struct or buffer but you have to be careful of padded
+     * memory that isn't necessarily initialized to zero throwing things off */
+    char bz[10] = { 0 };
+    char bn[10];
+    char * control = "test";
+    strcpy(bz, control);
+    strcpy(bn, control);
+    
+    printf( "comparing 'identical' buffers with memcmp: %d\n", 
+            memcmp(bz, bn, 10));
+    printf( "inspecting each byte of 'identical' buffers containing \"%s\":\n"
+            "\t{%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x}\n"
+            "\t{%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x}\n",
+            control,
+            bz[0],bz[1],bz[2],bz[3],bz[4],bz[5],bz[6],bz[7],bz[8],bz[9],
+            bn[0],bn[1],bn[2],bn[3],bn[4],
+            (unsigned char)bn[5],(unsigned char)bn[6],(unsigned char)bn[7],
+            (unsigned char)bn[8],(unsigned char)bn[9]);
+
+    /* now we demo strcmp */
+    printf( "comparing the same buffers with strcmp: %d\n", strcmp(bz, bn));
+
+    /* strncmp exists to control considered length */
+    printf( "comparing the first %d characters using strncmp: %d\n", 
+            5, strncmp(bz, bn, 5));
+
+    /* strcasecmp and strncasecmp can ignore case of multibyte characters in a
+     * locale dependent way */
+    strcpy(bn, "TEST");
+    printf( "comparing %s and %s using strcasecmp: %d", 
+            bz, bn, strcasecmp(bz, bn));
+
+    /* a gnu extension to compare versions of filenames or whatever exists
+     * strverscmp -- I don't see myself ever using this */
+
+    printf("\n");
 }
 
-/* Section 5.8 Notes */
+/* Section 5.8 Notes 
+ * collating is useful when you end up using qsort or something similar because
+ * if provides a locale dependent method comparing strings and fitting their
+ * characters into the correct alphabetical order */
+int compare_elements (const void * s1, const void * s2) 
+{
+    /* read these right to left */
+    /* a pointer to a (const void) being cast as a pointer to a const pointer
+     * to a char, which when we dereference in the strcoll function is just a
+     * const pointer to a char. */
+    /* strcoll expects char *, and const void * can't be cast without
+     * discarding things unless we do the second const */
+    char * const * p1 = s1;
+    char * const * p2 = s2;
+    return strcoll(*p1, *p2); 
+}
 void string_collate_demo(void)
 {
+    printf( "===================\n"
+            "=== Section 5.7 ===\n"
+            "===================\n\n");
 
+    /* strcoll compares two strings, strxfrm transforms a string */
+    char * str_array[4] = { "Hello", "hello", "friday", "blurb" };
+    printf( "Array order prior to collated sort:\n"
+            "\t\"%s\"\n"
+            "\t\"%s\"\n"
+            "\t\"%s\"\n"
+            "\t\"%s\"\n",
+            str_array[0],str_array[1],str_array[2],str_array[3]);
+
+    /* run them with the en_US.UTF-8 locale */
+    printf("setting locale to en_US.UTF-8\n");
+    setlocale(LC_ALL, "en_US.UTF-8");
+    printf("strcoll(\"h\",\"H\") = %d\n",strcoll("h","H"));
+    qsort(str_array, 4, sizeof(char *), compare_elements);
+    printf( "Array order after collated sort:\n"
+            "\t\"%s\"\n"
+            "\t\"%s\"\n"
+            "\t\"%s\"\n"
+            "\t\"%s\"\n",
+            str_array[0],str_array[1],str_array[2],str_array[3]);
+
+    /* running again with C.UTF-8 */
+    printf("setting locale to C.UTF-8\n");
+    setlocale(LC_ALL, "C.UTF-8");
+    printf("strcoll(\"h\",\"H\") = %d\n",strcoll("h","H"));
+    qsort(str_array, 4, sizeof(char *), compare_elements);
+    printf( "Array order after collated sort:\n"
+            "\t\"%s\"\n"
+            "\t\"%s\"\n"
+            "\t\"%s\"\n"
+            "\t\"%s\"\n",
+            str_array[0],str_array[1],str_array[2],str_array[3]);
+    
+    /* strxfrm demo */
+
+    /* I appear to be experiencing a UTF-8 bug like what is described here 
+     * https://stackoverflow.com/questions/51943128/how-to-use-strxfrm-in-c-language
+     */
+    /* if you pass size of 0 it'll return what size it would have needed for a
+     * transformed string */
+    // setlocale(LC_ALL, "en_US.UTF-8");
+    // int len = strxfrm(NULL, "hello", 0);
+    // char * transformed_hello = malloc(len);
+    // if(transformed_hello == NULL)
+    //     error(EXIT_FAILURE, errno, "xfrm_hello allocation failed");
+    // strxfrm(transformed_hello, "hello", len-1);
+    // printf( "%s transformed into %s with strxfrm\n",
+    //         "hello",
+    //         transformed_hello);
+    printf("\n");
 }
 
 /* Section 5.9 Notes */
