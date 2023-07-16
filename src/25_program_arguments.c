@@ -7,7 +7,7 @@
 _Bool sections[39] = {false,};
 
 /* argp globals */
-const char * argp_program_version = "libc_notes version 4.5.2";
+const char * argp_program_version = "libc_notes version 5.9.0";
 const char * argp_program_bug_address = "<mscottchristensen@gmail.com>";
 const char doc[] = "libc notes -- a runnable set of examples subdivided by "
                     "sections of 'info libc' (the GNU libc Reference Manual)";
@@ -15,8 +15,9 @@ const char doc[] = "libc notes -- a runnable set of examples subdivided by "
 static error_t custom_parser(int key, char * arg, struct argp_state * state);
 
 static struct argp_option options[] = {
-        {"sections", 's', "CSV_SECTIONS", 0, "comma-separated (no spaces) integers "
-                                "representing section numbers. e.g. 01,05,23"},
+        {"sections", 's', "CSV_SECTIONS", 0, 
+            "comma-separated (no spaces) integers representing section numbers." 
+            "e.g. 01,05,23"},
         { 0 }
     };
 
