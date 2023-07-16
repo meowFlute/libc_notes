@@ -76,9 +76,9 @@ void string_run_demos(void)
  * you try to read the length of something with no null terminator */
 void string_length_demo(void)
 {
-    printf( "===================\n"
-            "=== Section 5.3 ===\n"
-            "===================\n\n");
+    printf( "\t===================\n"
+            "\t=== Section 5.3 ===\n"
+            "\t===================\n\n");
 
     char demo_buffer[80] = { 0 };
     char * demo_string = "hello, world!";
@@ -154,9 +154,9 @@ typedef struct _two_datas {
  * destination arrays to overlap */
 void string_copying_demo(void)
 {
-    printf( "===================\n"
-            "=== Section 5.4 ===\n"
-            "===================\n\n");
+    printf( "\t===================\n"
+            "\t=== Section 5.4 ===\n"
+            "\t===================\n\n");
 
     /* mem and str functions are in string.h */
     /* mem functions can be applied to much more than just strings */
@@ -294,9 +294,9 @@ void string_copying_demo(void)
  * */
 void string_concat_demo(void)
 {
-    printf( "===================\n"
-            "=== Section 5.5 ===\n"
-            "===================\n\n");
+    printf( "\t===================\n"
+            "\t=== Section 5.5 ===\n"
+            "\t===================\n\n");
 
     /* two arbitrary strings */
     char * first_string = "Hello";
@@ -377,9 +377,9 @@ void string_truncate_demo(void)
 /* Section 5.7 Notes */
 void string_compare_demo(void)
 {
-    printf( "===================\n"
-            "=== Section 5.7 ===\n"
-            "===================\n\n");
+    printf( "\t===================\n"
+            "\t=== Section 5.7 ===\n"
+            "\t===================\n\n");
 
     /* memcmp is really only useful for something where you want to compare
      * exact blocks, as it takes each byte as an unsigned char and promotes it
@@ -413,7 +413,7 @@ void string_compare_demo(void)
     /* strcasecmp and strncasecmp can ignore case of multibyte characters in a
      * locale dependent way */
     strcpy(bn, "TEST");
-    printf( "comparing %s and %s using strcasecmp: %d", 
+    printf( "comparing %s and %s using strcasecmp: %d\n", 
             bz, bn, strcasecmp(bz, bn));
 
     /* a gnu extension to compare versions of filenames or whatever exists
@@ -440,9 +440,9 @@ int compare_elements (const void * s1, const void * s2)
 }
 void string_collate_demo(void)
 {
-    printf( "===================\n"
-            "=== Section 5.8 ===\n"
-            "===================\n\n");
+    printf( "\t===================\n"
+            "\t=== Section 5.8 ===\n"
+            "\t===================\n\n");
 
     /* strcoll compares two strings, strxfrm transforms a string */
     char * str_array[4] = { "Hello", "hello", "friday", "blurb" };
@@ -496,10 +496,79 @@ void string_collate_demo(void)
     printf("\n");
 }
 
-/* Section 5.9 Notes */
+/* Section 5.9 Notes 
+ * No specific drama in the notes here, and these seem like very useful
+ * functions. One thing to be aware of is that they often consider bytes so be
+ * careful with multibyte strings */
 void string_search_demo(void)
 {
+    setlocale(LC_ALL, "en_US.UTF-8");
+    printf( "\t===================\n"
+            "\t=== Section 5.9 ===\n"
+            "\t===================\n\n");
+    
+    /* UTF-8 U+21D2 RIGHTWARDS DOUBLE ARROW as octal escape strings */
+    char * arrow = "\342\207\222";
 
+    /* *chr functions find a char (or unsigned char for mem functions) 
+     * *rchr starts from the end of the block 
+     * strchrnul returns the end of the string instead of NULL if it doesn't
+     * find anything */
+    /* for instance if I wanted a pointer to the null terminator */
+    char * end_of_arrow = strchr(arrow, '\0');
+    printf( "string \"%s\" at %p has a null termination character at %p\n",
+            arrow,
+            arrow,
+            end_of_arrow);
+
+    /* we'll search for a specific set of memory using memmem */
+    union float_or_byte_array
+    {
+        float f;
+        unsigned char uchr[4];
+    };
+    union float_or_byte_array foba;
+    foba.f = 2.35f;
+    struct struct_of_floats
+    {
+        float f1;
+        float f2;
+        float f3;
+    };
+    struct struct_of_floats haystack = { 1.23f, 2.35f, 3.405f };
+
+    float * needle = memmem(&haystack, 
+                            sizeof(struct struct_of_floats), 
+                            foba.uchr,
+                            4);
+
+    printf( "ptr to float of value %f found in %p of len %zu using memmem:\n"
+            "\t%s %p = %f\n",
+            foba.f,
+            &haystack,
+            sizeof(struct struct_of_floats),
+            arrow,
+            needle,
+            *needle);
+
+    /* strstr does the same thing, but with substrings 
+     * strcasestr does a case insensitive search */
+    char * long_string = "The quick brown fox jumps over the lazy dog";
+    char * substring = "lazy";
+    char * result = strstr(long_string, substring);
+    printf("Substring %s found at %p: %s\n", substring, result, result);
+
+    /* strspn/strcspn/strpbrk is almost like a regex search, but you specifiy every
+     * character in the class explicitly.
+     *
+     * the first two return a length of characters matched and *pbrk returns a
+     * pointer to the break point */
+    size_t num_matches = strspn(result, "abcdefghijklmnopqrstuvwxyz");
+    printf("\"%s\" has %zu lowercase letters sequentially at the start\n",
+            result,
+            num_matches);
+
+    printf("\n");
 }
 
 /* Section 5.10 Notes */
