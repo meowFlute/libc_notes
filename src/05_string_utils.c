@@ -574,7 +574,81 @@ void string_search_demo(void)
 /* Section 5.10 Notes */
 void string_split_demo(void)
 {
+    printf( "\t====================\n"
+            "\t=== Section 5.10 ===\n"
+            "\t====================\n\n");
 
+    /* strtok is common to use, but keep in mind that it is MT-Unsafe due to a
+     * race condition based on it NOT being reentrant (it uses static, global,
+     * or dynamically allocated memory it finds for itself and as a result two
+     * calls to the same function can interfere with one another.
+     *
+     * It is also important to note that strtok MODIFIES the string you pass to
+     * it as an argument */
+    char * string_with_tokens = "you, me, someone else, yo mama";
+    char * tmp_copy = strdupa(string_with_tokens);
+    if(tmp_copy == NULL)
+        error(EXIT_FAILURE, errno, "tmp_copy allocation failed");
+    char * token = strtok(tmp_copy, ",");
+    printf( "Finding tokens in \"%s\" separated by \",\":\n", 
+            string_with_tokens);
+    while(token != NULL)
+    {
+        /* we'll leave token alone */
+        char * tokptr = token;
+        /* trim leading spaces */
+        while(tokptr[0] == ' ')
+        {
+            tokptr++;
+        }
+        printf("\t\"%s\"\n", tokptr);
+        token = strtok(NULL, ",");
+    }
+
+    /* reentrance is overcome in the function strtok_r, which has a third
+     * argument that stores the result. strtok_r is part of POSIX.1 and is
+     * multi-threading safe */
+    tmp_copy = strdupa(string_with_tokens);
+    if(tmp_copy == NULL)
+        error(EXIT_FAILURE, errno, "tmp_copy second allocation failed");
+    char * save_ptr;
+    token = strtok_r(tmp_copy, ",", &save_ptr);
+    printf( "Finding tokens again, this time with reentrant strtok_r:\n");
+    while(token != NULL)
+    {
+        /* we'll leave token alone */
+        char * tokptr = token;
+        /* trim leading white space */
+        while(tokptr[0] == ' ')
+        {
+            tokptr++;
+        }
+        printf("\t\"%s\"\n", tokptr);
+        token = strtok_r(NULL, ",", &save_ptr);
+    }
+
+    /* perhaps even simpler is strsep, which takes the third arg and the first
+     * arg of strtok_r and combined them */
+    tmp_copy = strdupa(string_with_tokens);
+    if(tmp_copy == NULL)
+        error(EXIT_FAILURE, errno, "tmp_copy second allocation failed");
+    token = strsep(&tmp_copy, ",");
+    printf("Once more, but this time with strsep:\n");
+    while(token != NULL)
+    {
+        char * tokptr = token;    
+        while(tokptr[0] == ' ')
+        {
+            tokptr++;
+        }
+        printf("\t\"%s\"\n", tokptr);
+        token = strsep(&tmp_copy, ",");
+    }
+
+    /* basename and dirname exist in this space too, I won't worry about it for
+     * now, but I'll keep that in mind */
+
+    printf("\n");
 }
 
 /* Section 5.11 Notes */

@@ -3,11 +3,13 @@
 #include <stdbool.h>    /* false */
 #include <stdlib.h>     /* EXIT_SUCCESS */
 #include <string.h>     /* strtok */
+#include <errno.h>      /* errno */
+#include <error.h>      /* error */
 
 _Bool sections[39] = {false,};
 
 /* argp globals */
-const char * argp_program_version = "libc_notes version 5.9.0";
+const char * argp_program_version = "libc_notes version 5.10.0";
 const char * argp_program_bug_address = "<mscottchristensen@gmail.com>";
 const char doc[] = "libc notes -- a runnable set of examples subdivided by "
                     "sections of 'info libc' (the GNU libc Reference Manual)";
@@ -17,11 +19,11 @@ static error_t custom_parser(int key, char * arg, struct argp_state * state);
 static struct argp_option options[] = {
         {"sections", 's', "CSV_SECTIONS", 0, 
             "comma-separated (no spaces) integers representing section numbers." 
-            "e.g. 01,05,23"},
+            "e.g. 01,05,23", 0},
         { 0 }
     };
 
-static struct argp parser = { options, custom_parser, 0, doc }; 
+static struct argp parser = { options, custom_parser, 0, doc, 0, 0, 0 }; 
 
 static error_t custom_parser(int key, char * arg, struct argp_state * state)
 {
@@ -29,7 +31,12 @@ static error_t custom_parser(int key, char * arg, struct argp_state * state)
     if(key == 's')
     {
         /* on the first call to strtok, you pass the delimited string */
-        char * ptr = strtok(arg, ",");
+        //char * ptr = strtok(arg, ",");
+        // to make this reentrant we'll use either strtok_r or strsep
+        char * arg_copy = strdupa(arg);
+        if(arg_copy == NULL)
+            error(EXIT_FAILURE, errno, "arg_copy allocation failed");
+        char * ptr = strsep(&arg_copy, ",");
         if(ptr == NULL)
             argp_error(state, "argument required for --sections");
         while(ptr != NULL)
@@ -43,7 +50,7 @@ static error_t custom_parser(int key, char * arg, struct argp_state * state)
             {
                 argp_error(state, "Do not pass 0 as a section.");
             }
-            ptr = strtok(NULL, ",");
+            ptr = strsep(&arg_copy, ",");
         }
     }
 
