@@ -651,22 +651,69 @@ void string_split_demo(void)
     printf("\n");
 }
 
-/* Section 5.11 Notes */
+/* Section 5.11 Notes 
+ * This section is short because there is only once concept and one function
+ * explicit_bzero is meant to be an erase call **THAT WON'T BE OPTIMIZED AWAY
+ * BY THE COMPILER** 
+ *
+ * So simple as that, if you have sensitive data like a private key or
+ * something and you want to try to minimize time that it is in RAM you can use
+ * explicit_bzero, because memset or bzero alone will likely be optimized away
+ * */
+void get_password(char * buffer, size_t max_length)
+{
+    strncpy(buffer, "test", max_length);
+}
 void string_erasing_demo(void)
 {
-
+    char pass[40];
+    get_password(pass, 40);
+    /* do something with the password */
+    /* look at this with a debugger so that you can see it happen */
+    explicit_bzero(pass, 40);
 }
 
-/* Section 5.12 Notes */
+/* Section 5.12 Notes 
+ * This demo just jumbles up the string irreversably. If you want to erase it
+ * use explicit_bzero, if you want to obfuscate it reversibly use memfrob */
 void string_shuffle_demo(void)
 {
+    printf( "\t====================\n"
+            "\t=== Section 5.12 ===\n"
+            "\t====================\n\n");
 
+    char * unshuffled_string = "The quick brown fox jumped over the lazy dog.";
+    char * shuffled_string = strfry(strdupa(unshuffled_string));
+    printf( "\"%s\" strfry'd to become:\n"
+            "\t\"%s\"\n", 
+            unshuffled_string,
+            shuffled_string);
+
+    printf("\n");
 }
 
-/* Section 5.13 Notes */
+/* Section 5.13 Notes 
+ * not super useful, but totally reversable */
 void string_obfuscate_demo(void)
 {
+    printf( "\t====================\n"
+            "\t=== Section 5.12 ===\n"
+            "\t====================\n\n");
 
+    char * unobf_string = "The quick brown fox jumped over the lazy dog.";
+    size_t unobf_len = strlen(unobf_string);
+    char * obf_string = strdupa(unobf_string);
+    memfrob(obf_string, unobf_len);
+
+    printf( "original string: \"%s\"\n"
+            "\tmemfrob'd string: \"%s\"\n",
+            unobf_string,
+            obf_string);
+
+    printf( "\tmemfrob^2'd string: \"%s\"\n",
+            (char *)memfrob(obf_string, unobf_len));
+
+    printf("\n");
 }
 
 /* Section 5.14 Notes */

@@ -9,7 +9,7 @@
 _Bool sections[39] = {false,};
 
 /* argp globals */
-const char * argp_program_version = "libc_notes version 5.10.0";
+const char * argp_program_version = "libc_notes version 5.12.0";
 const char * argp_program_bug_address = "<mscottchristensen@gmail.com>";
 const char doc[] = "libc notes -- a runnable set of examples subdivided by "
                     "sections of 'info libc' (the GNU libc Reference Manual)";
