@@ -307,10 +307,10 @@ void string_concat_demo(void)
     size_t first_len = strlen(first_string);
     size_t second_len = strlen(second_string);
     size_t block_length = first_len + second_len + 1;
-    char * dest_memcpy = malloc(block_length);
+    char * dest_memcpy = calloc(1, block_length);
     if(dest_memcpy == NULL)
         error(EXIT_FAILURE, errno, "dest_memcpy allocation error");
-    char * dest_strcat = malloc(block_length);
+    char * dest_strcat = calloc(1, block_length);
     if(dest_strcat == NULL)
         error(EXIT_FAILURE, errno, "dest_strcat allocation error");
 
@@ -392,7 +392,8 @@ void string_compare_demo(void)
     char * control = "test";
     strcpy(bz, control);
     strcpy(bn, control);
-    
+   
+    /* using bn uninitialized on purpose will freak out valgrind */
     printf( "comparing 'identical' buffers with memcmp: %d\n", 
             memcmp(bz, bn, 10));
     printf( "inspecting each byte of 'identical' buffers containing \"%s\":\n"
@@ -902,6 +903,9 @@ void string_encode_demo(void)
         printf("Bytes match after encoding and decoding\n");
     /* the function above shows the gnu reference example of how one might 
      * encode using l64a */
+
+    free(encoded_data_buff);
+    free(decoded_data_buff);
     printf("\n");
 }
 
