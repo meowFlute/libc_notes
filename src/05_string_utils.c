@@ -47,6 +47,7 @@
 #include "errno.h"  /* errno for malloc checking */
 #include "error.h"  /* error for errno reporting */
 #include "locale.h" /* LC_ALL, etc */
+#include "arpa/inet.h"  /* htonl, ntohl */
 
 /* we'll use this dummy buffer length a few times */
 #ifndef MAX_BUFF_LEN
@@ -697,7 +698,7 @@ void string_shuffle_demo(void)
 void string_obfuscate_demo(void)
 {
     printf( "\t====================\n"
-            "\t=== Section 5.12 ===\n"
+            "\t=== Section 5.13 ===\n"
             "\t====================\n\n");
 
     char * unobf_string = "The quick brown fox jumped over the lazy dog.";
@@ -717,9 +718,191 @@ void string_obfuscate_demo(void)
 }
 
 /* Section 5.14 Notes */
+/* THIS FUNCTION IS LIFTED STRAIGHT FROM THE GNU REFERNCE EXAMPLE IN SECTION
+ * 5.14 */
+/* buf is a pointer to the block to be encoded and len is the number of bytes
+ * in length to be copied */
+char * b64_encode(const void * buf, size_t len)
+{
+    /* convert the pointer to the block to unsigned char */
+    unsigned char *in = (unsigned char *) buf;
+    /* We know in advance how long the buffer has to be. */
+    /* the function outputs 6 characters per 4 bytes */
+    /* 
+     * the below malloc is simple taking into account that integer division
+     * truncates, so: 
+     *      - (len + 3) / 4 minimizes any truncation effect (rounds up)
+     *      - dividing by 4 and then multiplying by 6 gives you the needed
+     *      length
+     *      - adding 6 gives you the necessary buffer for prepending the length
+     *      - adding 1 to that includes the null byte
+     * */
+    char *out = malloc (6 + ((len + 3) / 4) * 6 + 1);
+    char *cp = out, *p;
+
+    /* Using ‘htonl’ is necessary so that the data can be
+       decoded even on machines with different byte order.
+       ‘l64a’ can return a string shorter than 6 bytes, so
+       we pad it with encoding of 0 ('.') at the end by
+       hand. */
+
+    /* Encode the length. 
+     * This way the decoding function knows how long the transmission is 
+     * aka the first thing they get is a length */
+    p = stpcpy (cp, l64a (htonl (len))); // p is the address of the terminator
+    cp = mempcpy (p, "......", 6 - (p - cp)); // over null with 'zeros' to 6
+                                              // places from where you started
+    while (len > 3) // as long as you have at least 4 bytes remaining
+    {
+        /* same process as above with the length, but byte packing the data as
+         * well */
+        unsigned long int n = *in++;
+        n = (n << 8) | *in++;
+        n = (n << 8) | *in++;
+        n = (n << 8) | *in++;
+        len -= 4;
+        p = stpcpy (cp, l64a (htonl (n)));
+        cp = mempcpy (p, "......", 6 - (p - cp));
+    }
+    if (len > 0) // 1-3 bytes remaining
+    {
+        unsigned long int n = *in++; // first byte
+        if (--len > 0) // if there is a second byte
+        {
+            n = (n << 8) | *in++; // second byte
+            if (--len > 0) // if there is a third byte
+                n = (n << 8) | *in; // third byte
+        }
+        cp = stpcpy (cp, l64a (htonl (n))); // copy and no need to pad
+    }
+    *cp = '\0'; // if the last thing you did was pad zeros, (len was a perfect
+                // multiple of 4) then you need to make the last byte a null 
+                // terminator
+    return out; // this is still pointing at the string start char from the 
+                // malloc
+}
+
+/* Here is my attempt to use the above example to write a functionally similar
+ * decode from network byte order to host byte order and using the encoded
+ * length */
+uint32_t * b64_decode(const char * cbuf, size_t * out_len)
+{
+    /* the documentation on a64l says it will only read the first 6 chars if
+     * the string is longer, so I'm not going to bother allocating a null
+     * terminated string buffer of 7 chars to copy into, I'll just move the
+     * pointer along as we go 6 chars at a time */
+
+    /* first order of business is to read the length encoded in the first 6
+     * characters */
+    char * in = (char *)cbuf;   // we'll leave cbuf where it is
+    *out_len = ntohl(a64l(in)); // pass this back out so it can be used to read
+    in += 6;                    // move the pointer up 6 after reading the len
+
+    /* check that the remaining string length makes sense with the known length
+     * */
+    size_t enc_strlen = strlen(in);
+    size_t target_strlen = ((*out_len+3) / 4) * 6;
+    /* fail if the buffer size isn't making sense */
+    if( enc_strlen != target_strlen )
+        error(EXIT_FAILURE, EINVAL, "String doesn't match encoded byte length");
+    
+    /* allocate raw data buffer */
+    uint32_t * out_buf = malloc(*out_len);
+    if(out_buf == NULL)
+        error(EXIT_FAILURE, errno, "failed to allocate out_buf");
+    uint32_t * cp = out_buf;
+
+    while(enc_strlen > 0)
+    {
+        *(cp++) = ntohl(a64l(in));
+        if(enc_strlen >= 6)
+        {
+            in += 6;
+            enc_strlen = strlen(in);
+        }
+        else
+        {
+            enc_strlen = 0;
+        }
+    }
+
+    /* hopefully this worked haha */
+    return out_buf;
+}
+
 void string_encode_demo(void)
 {
+    printf( "\t====================\n"
+            "\t=== Section 5.14 ===\n"
+            "\t====================\n\n");
 
+
+    /* this covers base64 (or at least some type of base64) encoding */
+    /* Here is the encoding block definition :
+     *          0     1     2     3     4     5     6     7
+     * 0       ‘.’   ‘/’   ‘0’   ‘1’   ‘2’   ‘3’   ‘4’   ‘5’
+     * 8       ‘6’   ‘7’   ‘8’   ‘9’   ‘A’   ‘B’   ‘C’   ‘D’
+     * 16      ‘E’   ‘F’   ‘G’   ‘H’   ‘I’   ‘J’   ‘K’   ‘L’
+     * 24      ‘M’   ‘N’   ‘O’   ‘P’   ‘Q’   ‘R’   ‘S’   ‘T’
+     * 32      ‘U’   ‘V’   ‘W’   ‘X’   ‘Y’   ‘Z’   ‘a’   ‘b’
+     * 40      ‘c’   ‘d’   ‘e’   ‘f’   ‘g’   ‘h’   ‘i’   ‘j’
+     * 48      ‘k’   ‘l’   ‘m’   ‘n’   ‘o’   ‘p’   ‘q’   ‘r’
+     * 56      ‘s’   ‘t’   ‘u’   ‘v’   ‘w’   ‘x’   ‘y’   ‘z’
+     * 
+     * or in other words:
+     *
+     * '.'  represents a 0
+     * '/'  represents a 1
+     * 0-9  represent  2-11
+     * A-Z  represent 12-37
+     * a-z  represent 38-63 
+     * */
+    /* it encodes data 32 bits at a time into a 6-byte buffer each time */
+    
+    /* to understand what we're dealing with I'll generate a known 32-bit
+     * buffer of data */
+    union data { uint32_t u32_data; unsigned char u8_data[4]; };
+    union data raw_data;
+    raw_data.u8_data[0] = 63;
+    raw_data.u8_data[1] = 100;
+    raw_data.u8_data[2] = 200; 
+    raw_data.u8_data[3] = 255;
+    /* we'll then put it into a buffer we're positive is long enough to catch
+     * more than double what this should be encoded as */
+    char buf[15] = { 0 };
+    /* first question is does it return a null-terminated string? */
+    char * encoding_raw = l64a(raw_data.u32_data);
+    strncpy(buf, encoding_raw, 7);
+    /* let's look at what we have */
+    printf( "raw uint32 data = 0x%08x\n"
+            "encoded data = \"%s\"\n"
+            "encoded data strlen = %zu\n",
+            raw_data.u32_data,
+            buf,
+            strlen(encoding_raw));
+    /* so we're positive that it takes 4 bytes raw and returns 6 chars 
+     * let's figure that out -- how many bits does it take to represent 64?
+     * 1,2,4,8,16,32,64 = 7 bits (so a signed char ascii style works perfect) 
+     * */
+#define RAW_BUFF_LEN 5
+    uint32_t raw_data_buff[RAW_BUFF_LEN] = \
+        { 4294967295U, 1203848U, 38947098U, 309487U, 123U };
+
+    /* now let's try using the encoding function and see if it does what I'd
+     * expect */
+    char * encoded_data_buff = b64_encode(  raw_data_buff, 
+                                            sizeof(uint32_t)*RAW_BUFF_LEN);
+    printf( "data encoded as \"%s\"\n", encoded_data_buff);
+
+    size_t num_bytes = 0U;
+    uint32_t * decoded_data_buff = b64_decode(encoded_data_buff, &num_bytes);
+    
+    /* compare the buffers to see if they match */
+    if(memcmp(decoded_data_buff, raw_data_buff, num_bytes))
+        printf("Bytes match after encoding and decoding\n");
+    /* the function above shows the gnu reference example of how one might 
+     * encode using l64a */
+    printf("\n");
 }
 
 /* Section 5.15 Notes */
