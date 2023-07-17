@@ -48,6 +48,7 @@
 #include "error.h"  /* error for errno reporting */
 #include "locale.h" /* LC_ALL, etc */
 #include "arpa/inet.h"  /* htonl, ntohl */
+#include "argz.h"   /* argz functions */
 
 /* we'll use this dummy buffer length a few times */
 #ifndef MAX_BUFF_LEN
@@ -912,5 +913,12 @@ void string_encode_demo(void)
 /* Section 5.15 Notes */
 void string_argz_envz_demo(void)
 {
-
+    /* These functions allow you to convert the traditional argv and env arrays
+     * of char * into vectors separated by null terminators. This is apparently
+     * useful when you're making system calls and want to modify / add / delete
+     * arguments from your program to another program 
+     *
+     * I'll pass on demoing these right now because I can't imagine using them
+     * in the near future. You never know.
+     * */
 }
