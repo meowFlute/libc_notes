@@ -8,6 +8,7 @@
 #include "03_virtual_memory_allocation.h"
 #include "04_character_classification.h"
 #include "05_string_utils.h"
+#include "09_searching_and_sorting.h"
 #include "25_program_arguments.h"
 
 int main(int argc, char * argv[])
@@ -38,6 +39,12 @@ int main(int argc, char * argv[])
     if(sections[5])
     {
         string_run_demos();
+    }
+
+    /* Section 9 -- Search and Sort Functions */
+    if(sections[9])
+    {
+        search_sort_run_demos();
     }
 
     /* Section 2 -- error reporting should be run last because it will exit with
