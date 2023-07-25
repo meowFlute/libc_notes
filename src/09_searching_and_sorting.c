@@ -1,7 +1,8 @@
 #include "09_searching_and_sorting.h"
 
-#include <stdlib.h>
+#include <stdlib.h> /* qsort, bsearch */
 #include <stdio.h>
+#include <search.h> /* lsearch, lfind */
 
 /* one static prototype per subsection */
 static void comparison_functions(comparison_fn_t);
@@ -58,12 +59,13 @@ static void comparison_functions(comparison_fn_t compare_fn_in)
 #define DOUBLE_ARRAY_LEN 10
 static void array_search_function(comparison_fn_t compare_func)
 {
+    size_t i;
     double d_arr[DOUBLE_ARRAY_LEN] = { 0 };
     double key = 0.0;
-    printf("Random array to qsort =\n\t{ ");
-    for (size_t i = 0; i < DOUBLE_ARRAY_LEN; i++)
+    printf("Random array =\n\t{ ");
+    for (i = 0; i < DOUBLE_ARRAY_LEN; i++)
     {
-        d_arr[i] = drand48() * 100.0;
+        d_arr[i] = drand48();
         if(i < (DOUBLE_ARRAY_LEN - 1))
             printf("%.5lf, ", d_arr[i]);
         else
@@ -72,9 +74,61 @@ static void array_search_function(comparison_fn_t compare_func)
     key = d_arr[5];
 
     /* linear search methods */
+    /* only use these when the array isn't sorted */
+    /* lfind does exactly what you'd expect linearly */
+    size_t nmemb = DOUBLE_ARRAY_LEN;
+
+    double * val = lfind(&key, d_arr, &nmemb, sizeof(double), compare_func);
+    if(val == NULL)
+    {
+        printf("value \"%lf\" not found in array\n", key);
+    }
+    else
+    {
+        size_t val_index = val - d_arr;
+        printf( "value \"%lf\" found at address %p:\n"
+                "\td_arr[%zu]\n"
+                "\t%zu bytes from d_arr at %p\n",
+                key, val, val_index, val_index * sizeof(double), d_arr);
+    }
+    
+    /* lsearch does the same thing, BUT IF IT DOESN'T FIND IT ADDS IT, you have
+     * to make sure that there is enough memory */
+    double * d_arr_w_extra = malloc(sizeof(double) * (DOUBLE_ARRAY_LEN + 1));
+    double key10 = 10.0;
+    double * val2 = lsearch(&key10, d_arr_w_extra, &nmemb, sizeof(double), 
+            compare_func);
+    size_t val2_index = val2 - d_arr_w_extra;
+    printf( "value \"%lf\" added at address %p:\n"
+            "\tnmemb = %zu\n"
+            "\t%zu bytes from d_arr_extra at %p\n",
+            key10, val2, nmemb, val2_index * sizeof(double), d_arr_w_extra); 
+
 
     qsort(d_arr, DOUBLE_ARRAY_LEN, sizeof(double), compare_func);
     /* binary search method on a sorted array */
+    printf( "array sorted using qsort:\n"
+            "\t{");
+    for(i = 0; i < DOUBLE_ARRAY_LEN; i++)
+    {
+        if(i < (DOUBLE_ARRAY_LEN - 1))
+            printf("%.5lf, ", d_arr[i]);
+        else
+            printf("%.5lf }\n",d_arr[i]);
+    }
+    double * val3 = bsearch(&key, d_arr, DOUBLE_ARRAY_LEN, sizeof(double), compare_func);
+    if(val3 == NULL)
+    {
+        printf("Value %lf not found in array\n", key);
+    }
+    else
+    {
+        size_t index3 = val3 - d_arr;
+        printf( "value \"%lf\" found at address %p:\n"
+                "\td_arr[%zu]\n"
+                "\t%zu bytes from d_arr at %p\n",
+                key, val3, index3, index3 * sizeof(double), d_arr);
+    }
 }
 
 /* 9.3 -- Array Sort Function
