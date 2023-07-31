@@ -5,6 +5,7 @@
 #include <search.h> /* lsearch, lfind, hash tables, trees */
 #include <error.h>  /* error */
 #include <errno.h>  /* errno */
+#include <string.h> /* memcpy */
 
 /* one static prototype per subsection */
 static void comparison_functions(comparison_fn_t);
@@ -306,14 +307,155 @@ static void hash_search_function(void)
             retval->key, (char *)(retval->data));
 
     /* clean up */
+    printf("destroying hash table\n");
     hdestroy_r(htab);
     printf("\n");
 }
 
+/* These functions implement a tree to access data with a mean access time
+ * proportional to the logarithm of the number of elements, and the GNU C
+ * Library implementation guarantees this bound is never exceeded even for
+ * input data which would give binary trees issues.
+ *
+ * They also can be used with arbitrary data and carry no restrictions that the
+ * hash tables did with their keys needing to be null-terminated strings
+ *
+ * Since they're not using strings as keys, you must specify a comparison
+ * function (still just comparison_fn_t like previous sections of this chapter)
+ *
+ * Since these functions operate on void pointers, they do not know the size of
+ * the containers they're looking at. This means they can't possibly copy them,
+ * and the data added to the tree is added by pointer reference only. This
+ * means memory management of the data pointed to by the tree nodes is done
+ * externally to the tree itself and that data must remain available for the
+ * lifetime of the tree.
+ *
+ * You can apply a function to the tree at every node as long as that function
+ * has type
+ *
+ *      void __action_fn_t (const void *nodep, VISIT value, int level)
+ *
+ * where: 
+ *  -   nodep is the data value of the current node, 
+ *  -   visit is an enum indicating what type of node it is and when the 
+ *      function was called, and 
+ *  -   level is depth in the tree (root being 0, its children being 1, etc)
+ *
+ * If you want to destroy the whole tree you can define a function that frees
+ * the data of type
+ *
+ *      void __free_fn_t ( void *nodep)
+ * 
+ * that does the freeing of elements. Even if you don't want it to free
+ * elements, you still need to call something that does nothing
+ */
+void print_node_fn_info(const void *nodep, VISIT value, int level)
+{
+    char * visit_value = NULL;
+    double data = **(double **)nodep;   
+    /* convert VISIT value enum to string */
+    switch (value)
+    {
+        case preorder :
+            visit_value = "preorder";
+            break;
+        case postorder :
+            visit_value = "postorder";
+            break;
+        case endorder :
+            visit_value = "endorder";
+            break;
+        case leaf :
+            visit_value = "leaf";
+            break;
+        default:
+            visit_value = "unknown (default)";
+            break;
+    }
+
+    printf( "Printing Node Info:\n"
+            "\tconst void *nodep = %p\n"
+            "\tdata in nodep = %lf\n"
+            "\tVISIT value = %s\n"
+            "\tlevel = %d\n",
+            nodep,
+            data,
+            visit_value,
+            level);
+}
+void print_free_elements(void * nodep)
+{
+    printf( "\tfunction called to free %lf\n",
+            *((double *)nodep));
+}
 static void tree_search_function(void)
 {
     printf("\t========================\n");
     printf("\t===== Section 9.6 ======\n");
     printf("\t========================\n");
 
+    /* since we're using void pointers, you can start with a null'd out void
+     * pointer for the root -- no tricky initialization sequence */
+    void * root = NULL;
+    void * cur_node = NULL;
+#define NUM_DUBS 10UL
+    double arr[NUM_DUBS] = { 1.0, 1.5, 2.5, 5.5, 10.3, 20.6, 32.4, 98.2, 100.2, 0.0 };
+    double key;
+    printf("pointer to arr for reference:\n\t%p", arr);
+
+    /* tsearch adds a new node pointing to KEY if it not found, tfind does not */
+    printf("\nusing tsearch to add nodes\n");
+    for(size_t i = 0; i < NUM_DUBS; i++)
+    {
+        printf("\tadding %lf\n", arr[i]);
+        cur_node = tsearch( (void *)(&arr[i]), &root, compare_doubles );
+        if(cur_node == NULL)
+            error(EXIT_FAILURE, errno, "tsearch out of memory");
+    }
+    
+    printf("using tfind to search for two nodes\n");
+    
+    key = 2.5;
+    cur_node = tfind(&key, &root, compare_doubles);
+    if(cur_node == NULL)
+        printf("\tkey %lf not found\n", key);
+    else
+        printf("\tkey %lf found\n", key);
+    
+    key = 2.7;
+    cur_node = tfind(&key, &root, compare_doubles);
+    if(cur_node == NULL)
+        printf("\tkey %lf not found\n", key);
+    else
+        printf("\tkey %lf found\n", key);
+
+    /* walk the tree applying a function at every leaf once and at every other
+     * node three times based on timing */
+    /* I wanted to do this before and after a delete to see how it changed the
+     * topology */
+    printf("walking the tree\n");
+    twalk(root, print_node_fn_info);
+
+    /* tdelete deletes a node matching KEY, something the hash tables couldn't
+     * do */
+    printf("deleting a single key %lf\n", arr[5]);
+    key = arr[5];
+    cur_node = tdelete(&key, &root, compare_doubles);
+    if(cur_node == NULL)
+        printf("\tkey %lf not found\n", key);
+    else
+        printf( "\tkey %lf deleted, parent was %lf\n", 
+                key, 
+                *((double *)cur_node));
+
+    /* walk the tree applying a function at every leaf once and at every other
+     * node three times based on timing */
+    printf("walking the tree\n");
+    twalk(root, print_node_fn_info);
+
+    /* tdestroy blows away the entire tree */
+    printf("calling tdestory to go scorched earth on this tree\n");
+    tdestroy(root, print_free_elements);
+
+    printf("\n");
 }
