@@ -9,6 +9,7 @@
 #include "04_character_classification.h"
 #include "05_string_utils.h"
 #include "09_searching_and_sorting.h"
+#include "19_mathematics.h"
 #include "25_program_arguments.h"
 
 int main(int argc, char * argv[])
@@ -45,6 +46,11 @@ int main(int argc, char * argv[])
     if(sections[9])
     {
         search_sort_run_demos();
+    }
+
+    if(sections[19])
+    {
+        mathematics_run_demos();
     }
 
     /* Section 2 -- error reporting should be run last because it will exit with
